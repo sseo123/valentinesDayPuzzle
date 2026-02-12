@@ -163,7 +163,7 @@ export default function ValentinesPuzzle() {
           <h1 className="text-8xl mb-8 animate-pulse">❤️</h1>
           <h2 className="text-6xl font-bold text-red-600 mb-6">Yay! 💕</h2>
           <p className="text-3xl text-gray-800 max-w-2xl mx-auto mb-12">
-            I knew you'd say yes! Happy Valentine's Day! 🌹
+            I knew you'd say yes! Happy Soon To Be Valentine's Day! 🌹
           </p>
           
           <button
@@ -219,9 +219,37 @@ export default function ValentinesPuzzle() {
               </button>
             )}
           </div>
-          <div className="mt-10">
-            you can't click no btw!!
-          </div>
+<div className="flex gap-8 justify-center items-center">
+        <button
+          onClick={() => setShowFinalMessage(true)}
+          style={{
+            padding: yesSize.padding,
+            fontSize: yesSize.fontSize
+          }}
+          className="bg-red-500 text-white font-bold rounded-full hover:bg-red-600 transition-all shadow-lg"
+        >
+          Yes!
+        </button>
+        
+        {/* Only keep this one button for "No" */}
+        {!noDisappeared && (
+          <button
+            onClick={() => setNoClickCount(prev => prev + 1)}
+            style={{
+              padding: noSize.padding,
+              fontSize: noSize.fontSize,
+              opacity: noSize.opacity
+            }}
+            className="bg-gray-400 text-white font-bold rounded-full hover:bg-gray-500 transition-all shadow-lg"
+          >
+            {noClickCount === 0 ? "No" : noClickCount === 1 ? "why did you click no :(" : "wow ok"}
+          </button>
+        )}
+      </div>
+
+      <div className="mt-10">
+        you can't click no btw!!
+      </div>
         </div>
       </div>
     );
