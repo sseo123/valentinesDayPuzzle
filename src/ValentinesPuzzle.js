@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import confetti from 'canvas-confetti';
 
 export default function ValentinesPuzzle() {
   const [pieces, setPieces] = useState([]);
@@ -12,7 +13,28 @@ export default function ValentinesPuzzle() {
   const canvasRef = useRef(null);
   const [images, setImages] = useState({ puzzle1: null, puzzle2: null });
 
-  // Load images
+  const handleYesClick = () => {
+    setShowFinalMessage(true);
+    
+    const duration = 3 * 1000;
+    const animationEnd = Date.now() + duration;
+    const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
+
+    const randomInRange = (min, max) => Math.random() * (max - min) + min;
+
+    const interval = setInterval(function() {
+      const timeLeft = animationEnd - Date.now();
+
+      if (timeLeft <= 0) {
+        return clearInterval(interval);
+      }
+
+      const particleCount = 50 * (timeLeft / duration);
+      confetti({ ...defaults, particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } });
+      confetti({ ...defaults, particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } });
+    }, 250);
+  };
+
   useEffect(() => {
     const loadImage = (src) => {
       return new Promise((resolve, reject) => {
@@ -32,10 +54,8 @@ export default function ValentinesPuzzle() {
     }).catch(err => {
       console.error('Error loading images:', err);
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Initialize puzzle pieces
   const initializePuzzle = () => {
     const pieceOrder = [0, 1, 2, 3, 4, 5, 6, 7, 8];
     const shuffled = [...pieceOrder].sort(() => Math.random() - 0.5);
@@ -47,7 +67,6 @@ export default function ValentinesPuzzle() {
     })));
   };
 
-  // Draw puzzle on canvas
   useEffect(() => {
     const image = currentPuzzle === 1 ? images.puzzle1 : images.puzzle2;
     if (!image || !canvasRef.current) return;
@@ -81,7 +100,6 @@ export default function ValentinesPuzzle() {
     });
   }, [pieces, images, selectedPiece, currentPuzzle]);
 
-  // Check if puzzle is solved
   useEffect(() => {
     if (pieces.length === 0) return;
     
@@ -102,7 +120,6 @@ export default function ValentinesPuzzle() {
     }
   }, [pieces, currentPuzzle, puzzle1Solved, puzzle2Solved]);
 
-  // Handle piece click
   const handlePieceClick = (index) => {
     if ((currentPuzzle === 1 && puzzle1Solved) || (currentPuzzle === 2 && puzzle2Solved)) return;
 
@@ -118,7 +135,6 @@ export default function ValentinesPuzzle() {
     }
   };
 
-  // Reset everything
   const resetPuzzle = () => {
     setPieces([]);
     setSelectedPiece(null);
@@ -131,7 +147,6 @@ export default function ValentinesPuzzle() {
     initializePuzzle();
   };
 
-  // Calculate button sizes based on no clicks
   const getYesButtonSize = () => {
     const basePadding = 12;
     const baseText = 3;
@@ -155,15 +170,14 @@ export default function ValentinesPuzzle() {
     };
   };
 
-  // Final message screen
-  if (showFinalMessage) {
+if (showFinalMessage) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-pink-200 via-red-200 to-pink-300 flex items-center justify-center p-8">
         <div className="text-center">
           <h1 className="text-8xl mb-8 animate-pulse">❤️</h1>
-          <h2 className="text-6xl font-bold text-red-600 mb-6">Yay! 💕</h2>
+          <h2 className="text-6xl font-bold text-red-600 mb-6">Yay!</h2>
           <p className="text-3xl text-gray-800 max-w-2xl mx-auto mb-12">
-            I knew you'd say yes! Happy Soon To Be Valentine's Day! 🌹
+            I knew you'd say yes! Happy Soon To Be Valentine's Day! 💕
           </p>
           
           <button
@@ -177,7 +191,6 @@ export default function ValentinesPuzzle() {
     );
   }
 
-  // Valentine's question screen
   if (showQuestion) {
     const yesSize = getYesButtonSize();
     const noSize = getNoButtonSize();
@@ -195,7 +208,7 @@ export default function ValentinesPuzzle() {
           
           <div className="flex gap-8 justify-center items-center">
             <button
-              onClick={() => setShowFinalMessage(true)}
+              onClick={handleYesClick}
               style={{
                 padding: yesSize.padding,
                 fontSize: yesSize.fontSize
@@ -219,43 +232,19 @@ export default function ValentinesPuzzle() {
               </button>
             )}
           </div>
-<div className="flex gap-8 justify-center items-center">
-        <button
-          onClick={() => setShowFinalMessage(true)}
-          style={{
-            padding: yesSize.padding,
-            fontSize: yesSize.fontSize
-          }}
-          className="bg-red-500 text-white font-bold rounded-full hover:bg-red-600 transition-all shadow-lg"
-        >
-          Yes!
-        </button>
-        
-        {/* Only keep this one button for "No" */}
-        {!noDisappeared && (
-          <button
-            onClick={() => setNoClickCount(prev => prev + 1)}
-            style={{
-              padding: noSize.padding,
-              fontSize: noSize.fontSize,
-              opacity: noSize.opacity
-            }}
-            className="bg-gray-400 text-white font-bold rounded-full hover:bg-gray-500 transition-all shadow-lg"
-          >
-            {noClickCount === 0 ? "No" : noClickCount === 1 ? "why did you click no :(" : "wow ok"}
-          </button>
-        )}
-      </div>
 
-      <div className="mt-10">
-        you can't click no btw!!
-      </div>
+          <div className="mt-10 text-gray-600 italic h-8">
+            {noClickCount === 0 
+              ? "you can't click no btw!!" 
+              : noClickCount === 1 
+              ? "why did you click no :(" 
+              : "wow ok"}
+          </div>
         </div>
       </div>
     );
   }
 
-  // Puzzle screen
   const isSolved = (currentPuzzle === 1 && puzzle1Solved) || (currentPuzzle === 2 && puzzle2Solved);
 
   return (
